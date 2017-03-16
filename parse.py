@@ -1,8 +1,21 @@
 import json
 from numpy import genfromtxt, savetxt
 import pandas as pd
+import re
+
+emoji_pattern = re.compile("["
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        r"\<https.+?\>"                           
+                           "]+", flags=re.UNICODE)
+
+
+
 tweets_data = []
 text_data=[]
+text_wo_emoji=[]
 coord=[]
 geo=[]
 language=[]
@@ -36,6 +49,20 @@ for i in tweets_data:
                 geo_enabled.append(i.get('user')['geo_enabled'])
                 place.append(i.get('place')['country'])
 
+tweet_clean=[]
+for i in range(len(text_data)):
+    tweet_clean.append(re.sub('https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,}','', text_data[i]))
+
+
+for i in range(len(tweet_clean)):
+    text_wo_emoji.append(emoji_pattern.sub(r'',tweet_clean[i]))
+
+text_wo_hash=[]
+for i in range(len(text_wo_emoji)):
+    text_wo_hash.append(re.sub('?<=\s|^(#)\w*[A-Za-z_]+\w*','',text_wo_emoji[i]))
+
+print(text_wo_hash)
+
 data=[]
 for i in range(len(text_data)):
 #    print(i)
@@ -48,6 +75,7 @@ for i in range(len(text_data)):
     row.append(geo_enabled[i])
     row.append(place[i])
     data.append(str(row)[1:len(str(row))-1])
+
 
 #data.append(text_data)
 #data.append(coord)
